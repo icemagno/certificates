@@ -45,8 +45,8 @@ public class CreateKeyStoreAndCA {
         Security.addProvider(new BouncyCastleProvider());
     }
     
-    private static final String SIGNATURE_ALGORITHM = "SHA512withECDSA";
-    private static final String KEY_GENERATION_ALGORITHM = "ECDH";
+    private static final String SIGNATURE_ALGORITHM = "SHA1WithRSA";
+    private static final String KEY_GENERATION_ALGORITHM = "RSA";
     
     private InputStream  getKeyStore( String fileName  ) throws Exception {
     	File fil = new File(fileName );
@@ -58,8 +58,10 @@ public class CreateKeyStoreAndCA {
     
     
     private KeyPair generateKeyPair() throws Exception {
-        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(KEY_GENERATION_ALGORITHM, PROVIDER_NAME);
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance( KEY_GENERATION_ALGORITHM, PROVIDER_NAME );
+        keyPairGenerator.initialize(2048);
         KeyPair keyPair = keyPairGenerator.generateKeyPair();
+        
         return keyPair;
     }
     
