@@ -39,6 +39,12 @@ import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 
 public class CreateKeyStoreAndCA {
+	private static CreateKeyStoreAndCA ss;
+	private static String certICPAlias;
+	private static String keyStoreFileEmissor = "d:/certs/IPC-Brasil-Teste.jks";
+	
+	private static String keyStorePassword = "senha1234567890##123";
+	private static String privateKeyPassword = "senha1234567890##123";	
 	
     private static final String PROVIDER_NAME = BouncyCastleProvider.PROVIDER_NAME;
     static {
@@ -65,7 +71,7 @@ public class CreateKeyStoreAndCA {
         return keyPair;
     }
     
-    private void genKeystore( String certAlias, String keyStoreFile, String certificateFile, String storePassword, String privateKeyPassword, X500Name subjectName, X500Name issuerName ) {
+    private void genAc( String certAlias, String keyStoreFile, String certificateFile, String storePassword, String privateKeyPassword, X500Name subjectName, X500Name issuerName ) {
         try {
         	
         	char[] pkPassword = privateKeyPassword.toCharArray();
@@ -87,11 +93,8 @@ public class CreateKeyStoreAndCA {
             OutputStream writeStream = new FileOutputStream( keyStoreFile );
             ks.store( writeStream, storePassword.toCharArray() );
             writeStream.close();
-            
-            System.out.println("Server Public Cert Key: " + cert.getPublicKey());
-            System.out.println("Server Public Key: " + keyPair.getPublic());
-            System.out.println("Server Private Key: " + keyPair.getPrivate());
-            
+   
+           
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -149,20 +152,26 @@ public class CreateKeyStoreAndCA {
     }    
 
     
-    private void createUserCertAndSignWithAC(String acKeyAlias, String certAlias, String keyStoreFile, String certificateFile, String storePassword, String privateKeyPassword, X500Name subjectName, X500Name issuerName ) {
-        try {
+    private void createUserCertAndSignWithAC(String acKeyAlias, String certAlias, String keyStoreFile, String fileName, String storePassword, String privateKeyPassword, X500Name subjectName, X500Name issuerName ) {
+        String certificateFile = fileName + ".cer";
+        String userKeystoreFile = fileName + ".jks";
+        
+        System.out.println("Gerando certificado para " + subjectName.toString() );
+        
+    	try {
         	char[] pkPassword = privateKeyPassword.toCharArray();
         	
         	KeyPair keyPair = generateKeyPair();
-            PublicKey publicKey = keyPair.getPublic();
+            PublicKey userPublicKey = keyPair.getPublic();
+            PrivateKey userPrivateKey = keyPair.getPrivate();
             
-            // Pega a chave privada de quem ASSINA o certificado ( CA )
+            // Pega a chave privada de quem ASSINA o certificado ( emissor )
             KeyStore ks = KeyStore.getInstance("PKCS12");
             ks.load( getKeyStore( keyStoreFile ) , storePassword.toCharArray() );
             PrivateKey certSignerPrivateKey = (PrivateKey)ks.getKey(acKeyAlias, pkPassword );
             
-            // Gera o certifiado do usuário e assina com a chave privada da AC
-            X509Certificate cert = createCert(issuerName, subjectName, certificateFile, publicKey, certSignerPrivateKey );
+            // Gera o certifiado do usuário e assina com a chave privada do emissor
+            X509Certificate cert = createCert(issuerName, subjectName, certificateFile, userPublicKey, certSignerPrivateKey );
             X509Certificate[] outChain = { cert };
             
             // Algumas validações
@@ -172,15 +181,21 @@ public class CreateKeyStoreAndCA {
             cert.verify( certSignerPublicKey );
             
 
-            // Salva o novo certificado no chaveiro
+            // Salva o novo certificado no chaveiro do emissor
             ks.setKeyEntry(certAlias, keyPair.getPrivate(), pkPassword, outChain);
             OutputStream writeStream = new FileOutputStream( keyStoreFile );
             ks.store( writeStream, storePassword.toCharArray() );
             writeStream.close();
             
-            System.out.println("User Public Cert Key: " + cert.getPublicKey());
-            System.out.println("User Public Key: " + keyPair.getPublic());
-            System.out.println("User Private Key: " + keyPair.getPrivate());
+
+            // Cria um chaveiro para o usuário com seu certificado
+            KeyStore ksUser = KeyStore.getInstance("PKCS12");
+            ksUser.load( null , storePassword.toCharArray() );
+            ksUser.setKeyEntry(certAlias, userPrivateKey, pkPassword, outChain);
+            OutputStream writeStreamUser = new FileOutputStream( userKeystoreFile );
+            ksUser.store( writeStreamUser, storePassword.toCharArray() );
+            writeStreamUser.close();            
+            
             
         } catch (Exception e) {
             e.printStackTrace();
@@ -206,26 +221,79 @@ public class CreateKeyStoreAndCA {
     */
 	public static void main(String[] args)  {
 		try {
-			
-        	String keyStoreFile = "d:/certs/keystore.jks";
-        	String keyStorePassword = "senha1234567890##123";
-        	String privateKeyPassword = "senha1234567890##123";
-        	String caCertificate = "d:/certs/ac.cer";
-        	String certACAlias = "Super.Vaca";
         	
-            X500Name issuerName = new X500Name("CN=SuperVaca, O=CASNAV, OU=APOLO, ST=RJ, C=Brasil");
+        	// Cria certificados e chaves da ICP Brasil (Teste)
+        	String IPCBrasilCertificate = "d:/certs/IPC-Brasil-Teste.cer";
+        	certICPAlias = "ICP.Brasil";
+            X500Name icpBrasilIssuer = new X500Name("CN=TESTE Autoridade Certificadora Raiz Brasileira, O=ICP-Brasil, OU=Instituto Nacional de Tecnologia da Informacao - ITI, OU=CERTIFICADO DE TESTE,ST=TESTE CASNAV, C=BR");
+			ss = new CreateKeyStoreAndCA();
+			ss.genAc( certICPAlias, keyStoreFileEmissor, IPCBrasilCertificate, keyStorePassword, privateKeyPassword, icpBrasilIssuer, icpBrasilIssuer);
 			
-			CreateKeyStoreAndCA ss = new CreateKeyStoreAndCA();
-			ss.genKeystore( certACAlias, keyStoreFile, caCertificate, keyStorePassword, privateKeyPassword, issuerName, issuerName);
 			
-        	String userCertificate = "d:/certs/user001.cer";
-        	String certUserAlias = "User.001";
-            X500Name subjectName = new X500Name("CN=Usuario01, O=CASNAV, OU=APOLO, ST=RJ, C=Brasil");
-			ss.createUserCertAndSignWithAC( certACAlias, certUserAlias, keyStoreFile, userCertificate, keyStorePassword, privateKeyPassword, subjectName, issuerName );
+			// Cria Certificado AC Defesa
+        	String acDefesaCertificate = "d:/certs/AC-Defesa-Teste";
+        	String acDefesaAlias = "AC.Defesa";
+            X500Name acDefesaIssuer = new X500Name("CN=TESTE Autoridade Certificadora Ministério da Defesa, O=AC-Defesa, OU=Ministério da Defesa, OU=CERTIFICADO DE TESTE, ST=TESTE CASNAV, C=BR");
+			ss.createUserCertAndSignWithAC( certICPAlias, acDefesaAlias, keyStoreFileEmissor, acDefesaCertificate, keyStorePassword, privateKeyPassword, acDefesaIssuer, icpBrasilIssuer );
+
+			// Cria Certificado AR Defesa
+        	String arDefesaCertificate = "d:/certs/AR-Defesa-Teste";
+        	String arDefesaAlias = "AR.Defesa";
+            X500Name arDefesaIssuer = new X500Name("CN=TESTE Autoridade Registradora Ministério da Defesa, O=AR-Defesa, OU=Ministério da Defesa, OU=CERTIFICADO DE TESTE, ST=TESTE CASNAV, C=BR");
+			ss.createUserCertAndSignWithAC( acDefesaAlias, arDefesaAlias, keyStoreFileEmissor, arDefesaCertificate, keyStorePassword, privateKeyPassword, arDefesaIssuer, acDefesaIssuer );
+			
+			// Gera certificado de usuário
+			createUserCertDefesa(arDefesaAlias, "51984881787", "ALDECIR VIEIRA SIMONACI", arDefesaIssuer);
+			createUserCertDefesa(arDefesaAlias, "16862043889", "Gleiton Farias de Souza", arDefesaIssuer);
+			createUserCertDefesa(arDefesaAlias, "01231584785", "Eliseu Dias da Silva", arDefesaIssuer);
+			createUserCertDefesa(arDefesaAlias, "01554862760", "Silvana do Valle Leone", arDefesaIssuer);
+			createUserCertDefesa(arDefesaAlias, "02331751722", "Nacelio Alves Pessoa", arDefesaIssuer);
+			
+			/*
+				51984881787 Aldecir Vieira Simonaci     aldecir.simonaci@defesa.gov.br  
+				16862043889 Gleiton Farias de Souza     gleiton.souza@defesa.gov.br    
+				01231584785 Eliseu Dias da Silva        eliseu.silva@defesa.gov.br        
+				01554862760 Silvana do Valle Leone      silvana.leone@defesa.gov.br      
+				02331751722 Nacelio Alves Pessoa        nacelio.pessoa@defesa.gov.br  			
+			*/
+			
+			createUserCertCasnav(arDefesaAlias, "34747591753", "Edgard Candido de Oliveira Neto", arDefesaIssuer);
+			createUserCertCasnav(arDefesaAlias, "00093406703", "Luciene Carvalho Correa de Souza", arDefesaIssuer);
+			createUserCertCasnav(arDefesaAlias, "12021963730", "Priscilla Moreno", arDefesaIssuer);
+			createUserCertCasnav(arDefesaAlias, "07946532865", "Sebastião Alves da Silva", arDefesaIssuer);
+			createUserCertCasnav(arDefesaAlias, "12386616703", "Arthur Azevedo de Andrade", arDefesaIssuer);
+			createUserCertCasnav(arDefesaAlias, "08097752719", "Jonathas Pacífico de Souza", arDefesaIssuer);
+			createUserCertCasnav(arDefesaAlias, "97454915787", "Mauricio Figueiredo Cordeiro", arDefesaIssuer);
+			createUserCertCasnav(arDefesaAlias, "02221224710", "Carlos Magno Oliveira de Abreu", arDefesaIssuer);
+			/*
+				34747591753 Edgard Candido de Oliveira Neto 	edgard@casnav.mar.mil.br        
+				00093406703 Luciene Carvalho Correa de Souza 	luciene.carvalho@casnav.mar.mil.br
+				12021963730 Priscilla Moreno                	priscila.moreno6@casnav.mil.mar.br    
+				07946532865 Sebastião Alves da Silva        	alves@casnav.mil.mar.br
+				12386616703 Arthur Azevedo de Andrade       	arthur.andrade@casnav.mar.mil.br
+				08097752719 Jonathas Pacífico de Souza      	jonathas.souza@casnav.mar.mil.br
+				97454915787 Mauricio Figueiredo Cordeiro 		mauricio.cordeiro@casnav.mar.mil.br
+				02221224710 Carlos Magno Oliveira de Abreu		magno.abreu@casnav.mar.mil.br			
+			*/
 			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		
 	}
 
+	private static void createUserCertDefesa( String emissorAlias, String cpf, String name, X500Name emissor) {
+    	String certificateFile = "d:/certs/" + cpf;
+    	String cn = name.toUpperCase() + ":" + cpf;
+        X500Name requerente = new X500Name("CN="+cn+", O=Defesa, OU=Ministério da Defesa, ST=TESTE CASNAV, C=BR");
+		ss.createUserCertAndSignWithAC( emissorAlias, cpf, keyStoreFileEmissor, certificateFile, keyStorePassword, privateKeyPassword, requerente, emissor );
+	}
+
+	private static void createUserCertCasnav( String emissorAlias, String cpf, String name, X500Name emissor) {
+    	String certificateFile = "d:/certs/" + cpf;
+    	String cn = name.toUpperCase() + ":" + cpf;
+        X500Name requerente = new X500Name("CN="+cn+", O=CASNAV, OU=Marinha do Brasil, ST=TESTE CASNAV, C=BR");
+		ss.createUserCertAndSignWithAC( emissorAlias, cpf, keyStoreFileEmissor, certificateFile, keyStorePassword, privateKeyPassword, requerente, emissor );
+	}
+	
+	
 }
