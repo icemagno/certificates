@@ -206,10 +206,6 @@ public class CreateKeyStoreAndCA {
     }
     
     
-    
-    
-    
-    
     /*
     country (countryName, C),
     organization (organizationName, O),
@@ -241,8 +237,15 @@ public class CreateKeyStoreAndCA {
         	String arDefesaAlias = "AR.Defesa";
             X500Name arDefesaIssuer = new X500Name("CN=TESTE Autoridade Registradora Ministério da Defesa, O=AR-Defesa, OU=Ministério da Defesa, OU=CERTIFICADO DE TESTE, ST=TESTE CASNAV, C=BR");
 			ss.createUserCertAndSignWithAC( acDefesaAlias, arDefesaAlias, keyStoreFileEmissor, arDefesaCertificate, keyStorePassword, privateKeyPassword, arDefesaIssuer, acDefesaIssuer );
-			
-			// Gera certificado de usuário
+
+			/*
+				Gera certificado de usuário ---	 	DEFESA
+				51984881787 Aldecir Vieira Simonaci     aldecir.simonaci@defesa.gov.br  
+				16862043889 Gleiton Farias de Souza     gleiton.souza@defesa.gov.br    
+				01231584785 Eliseu Dias da Silva        eliseu.silva@defesa.gov.br        
+				01554862760 Silvana do Valle Leone      silvana.leone@defesa.gov.br      
+				02331751722 Nacelio Alves Pessoa        nacelio.pessoa@defesa.gov.br  			
+			 */			
 			createUserCertDefesa(arDefesaAlias, "51984881787", "ALDECIR VIEIRA SIMONACI", arDefesaIssuer);
 			createUserCertDefesa(arDefesaAlias, "16862043889", "Gleiton Farias de Souza", arDefesaIssuer);
 			createUserCertDefesa(arDefesaAlias, "01231584785", "Eliseu Dias da Silva", arDefesaIssuer);
@@ -250,22 +253,7 @@ public class CreateKeyStoreAndCA {
 			createUserCertDefesa(arDefesaAlias, "02331751722", "Nacelio Alves Pessoa", arDefesaIssuer);
 			
 			/*
-				51984881787 Aldecir Vieira Simonaci     aldecir.simonaci@defesa.gov.br  
-				16862043889 Gleiton Farias de Souza     gleiton.souza@defesa.gov.br    
-				01231584785 Eliseu Dias da Silva        eliseu.silva@defesa.gov.br        
-				01554862760 Silvana do Valle Leone      silvana.leone@defesa.gov.br      
-				02331751722 Nacelio Alves Pessoa        nacelio.pessoa@defesa.gov.br  			
-			*/
-			
-			createUserCertCasnav(arDefesaAlias, "34747591753", "Edgard Candido de Oliveira Neto", arDefesaIssuer);
-			createUserCertCasnav(arDefesaAlias, "00093406703", "Luciene Carvalho Correa de Souza", arDefesaIssuer);
-			createUserCertCasnav(arDefesaAlias, "12021963730", "Priscilla Moreno", arDefesaIssuer);
-			createUserCertCasnav(arDefesaAlias, "07946532865", "Sebastião Alves da Silva", arDefesaIssuer);
-			createUserCertCasnav(arDefesaAlias, "12386616703", "Arthur Azevedo de Andrade", arDefesaIssuer);
-			createUserCertCasnav(arDefesaAlias, "08097752719", "Jonathas Pacífico de Souza", arDefesaIssuer);
-			createUserCertCasnav(arDefesaAlias, "97454915787", "Mauricio Figueiredo Cordeiro", arDefesaIssuer);
-			createUserCertCasnav(arDefesaAlias, "02221224710", "Carlos Magno Oliveira de Abreu", arDefesaIssuer);
-			/*
+				Gera certificado de usuário ---	 CASNAV
 				34747591753 Edgard Candido de Oliveira Neto 	edgard@casnav.mar.mil.br        
 				00093406703 Luciene Carvalho Correa de Souza 	luciene.carvalho@casnav.mar.mil.br
 				12021963730 Priscilla Moreno                	priscila.moreno6@casnav.mil.mar.br    
@@ -275,7 +263,38 @@ public class CreateKeyStoreAndCA {
 				97454915787 Mauricio Figueiredo Cordeiro 		mauricio.cordeiro@casnav.mar.mil.br
 				02221224710 Carlos Magno Oliveira de Abreu		magno.abreu@casnav.mar.mil.br			
 			*/
+			createUserCertCasnav(arDefesaAlias, "34747591753", "Edgard Candido de Oliveira Neto", arDefesaIssuer);
+			createUserCertCasnav(arDefesaAlias, "00093406703", "Luciene Carvalho Correa de Souza", arDefesaIssuer);
+			createUserCertCasnav(arDefesaAlias, "12021963730", "Priscilla Moreno", arDefesaIssuer);
+			createUserCertCasnav(arDefesaAlias, "07946532865", "Sebastião Alves da Silva", arDefesaIssuer);
+			createUserCertCasnav(arDefesaAlias, "12386616703", "Arthur Azevedo de Andrade", arDefesaIssuer);
+			createUserCertCasnav(arDefesaAlias, "08097752719", "Jonathas Pacífico de Souza", arDefesaIssuer);
+			createUserCertCasnav(arDefesaAlias, "97454915787", "Mauricio Figueiredo Cordeiro", arDefesaIssuer);
+			createUserCertCasnav(arDefesaAlias, "02221224710", "Carlos Magno Oliveira de Abreu", arDefesaIssuer);
 			
+			
+			/*
+			 	SEGMA
+				JOÃO FRANSWILLIAM BARBOSA				90514882700	joao.franswilliam@defesa.gov.br
+				ISRAEL WESLEY DE ALMEIDA CAVALCANTE 	75473259715	wesley.cavalcante@defesa.gov.br
+				ELISEU DIAS DA SILVA 					01231584785	eliseu.silva@defesa.gov.br
+				MÁRIO CELSO TEIXEIRA LOPES 				06594965859	mario.celso@defesa.gov.br
+				URIAS ANDRADE PINHEIRO					29624444234	urias.andrade@defesa.gov.br
+				JAYMERINO PEREIRA DA SILVA JUNIOR		71788484720	jaymerino.junior@defesa.gov.br
+				DANIEL ANSELMO BARRETO SANTOS			03101242479	daniel.barreto@defesa.gov.br
+				GILSON THIAGO FERREIRA DA SILVA			12623848777	gilson.ferreira@defesa.gov.br
+				GERLÊNIA SZERVINSK PEREIRA				71510753168	gerlenia.pereira@defesa.gov.br			 
+			 */
+			createUserCertSegma(arDefesaAlias, "90514882700", "JOÃO FRANSWILLIAM BARBOSA", arDefesaIssuer);
+			createUserCertSegma(arDefesaAlias, "75473259715", "ISRAEL WESLEY DE ALMEIDA CAVALCANTE", arDefesaIssuer);
+			createUserCertSegma(arDefesaAlias, "01231584785", "ELISEU DIAS DA SILVA", arDefesaIssuer);
+			createUserCertSegma(arDefesaAlias, "06594965859", "MÁRIO CELSO TEIXEIRA LOPES", arDefesaIssuer);
+			createUserCertSegma(arDefesaAlias, "29624444234", "URIAS ANDRADE PINHEIRO", arDefesaIssuer);
+			createUserCertSegma(arDefesaAlias, "71788484720", "JAYMERINO PEREIRA DA SILVA JUNIOR", arDefesaIssuer);
+			createUserCertSegma(arDefesaAlias, "03101242479", "DANIEL ANSELMO BARRETO SANTOS", arDefesaIssuer);
+			createUserCertSegma(arDefesaAlias, "12623848777", "GILSON THIAGO FERREIRA DA SILVA", arDefesaIssuer);
+			createUserCertSegma(arDefesaAlias, "71510753168", "GERLÊNIA SZERVINSK PEREIRA", arDefesaIssuer);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		
@@ -295,5 +314,11 @@ public class CreateKeyStoreAndCA {
 		ss.createUserCertAndSignWithAC( emissorAlias, cpf, keyStoreFileEmissor, certificateFile, keyStorePassword, privateKeyPassword, requerente, emissor );
 	}
 	
+	private static void createUserCertSegma( String emissorAlias, String cpf, String name, X500Name emissor) {
+    	String certificateFile = "d:/certs/" + cpf;
+    	String cn = name.toUpperCase() + ":" + cpf;
+        X500Name requerente = new X500Name("CN="+cn+", O=SEGMA, OU=Ministério da Defesa, ST=TESTE CASNAV, C=BR");
+		ss.createUserCertAndSignWithAC( emissorAlias, cpf, keyStoreFileEmissor, certificateFile, keyStorePassword, privateKeyPassword, requerente, emissor );
+	}
 	
 }
